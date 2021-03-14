@@ -1,34 +1,57 @@
 version: "3"
 services:
-  nginx:
+
+  metabase-db:
+    image: postgres:13.1-alpine
+    restart: always
+    container_name: metabase-db
+    volumes:
+      - db-data:${DB_DATA_DIR}
+    environment:
+      - PGDATA=${DB_DATA_DIR}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+  metabase-nginx:
     image: nginx:stable
     restart: always
-    container_name: nginx
+    container_name: metabase-nginx
     ports:
       - 80:80
       - 443:443
     depends_on:
       - "metabase"
+    networks:
+      - metabase
     volumes:
       - "./nginx-service.conf:/etc/nginx/conf.d/default.conf"
 
   metabase:
-    image: metabase/metabase
+    image: metabase/metabase:latest
     restart: always
     container_name: metabase
     environment:
-      MB_DB_TYPE: mysql
-      MB_DB_HOST: "${DB_HOST}"
+      MB_DB_TYPE: "postgres"
       MB_DB_DBNAME: "${DB_NAME}"
       MB_DB_PORT: "${DB_PORT}"
       MB_DB_USER: "${DB_USER}"
       MB_DB_PASS: "${DB_PASSWORD}"
+      MB_DB_HOST: "db"
+
+      MB_PASSWORD_COMPLEXITY: strong
+      MB_PASSWORD_LENGTH: 8
       JAVA_TIMEZONE: "${MB_TIMEZONE}"
-      MB_SITE_URL: "${MB_SITE_URL}"
+    networks:
+      - metabase
     ports:
       - "${MB_PORT}:3000"
-    volumes:
-      - "mb-data:/metabase-data"
+    depends_on:
+      - metabase-db
+
+networks:
+  metabase:
+    driver: bridge
 
 volumes:
-  mb-data:
+  db-data:
