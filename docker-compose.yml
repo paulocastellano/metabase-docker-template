@@ -7,6 +7,8 @@ services:
     container_name: metabase-db
     volumes:
       - db-data:${DB_DATA_DIR}
+    networks:
+      - metabase
     environment:
       - PGDATA=${DB_DATA_DIR}
       - POSTGRES_DB=${DB_NAME}
@@ -37,7 +39,7 @@ services:
       MB_DB_PORT: "${DB_PORT}"
       MB_DB_USER: "${DB_USER}"
       MB_DB_PASS: "${DB_PASSWORD}"
-      MB_DB_HOST: "db"
+      MB_DB_HOST: "metabase-db"
 
       MB_PASSWORD_COMPLEXITY: strong
       MB_PASSWORD_LENGTH: 8
