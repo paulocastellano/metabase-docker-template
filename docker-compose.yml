@@ -44,6 +44,7 @@ services:
       MB_PASSWORD_COMPLEXITY: strong
       MB_PASSWORD_LENGTH: 8
       JAVA_TIMEZONE: "${MB_TIMEZONE}"
+      JAVA_TOOL_OPTIONS: "-Xmx3072m"
     networks:
       - metabase
     ports:
